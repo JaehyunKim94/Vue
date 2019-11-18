@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+  <div id="app">
+    <change-color></change-color>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script>
+    Vue.component('change-color', {
+      template: `
+      <div>
+        <button @click="changeCol">toggle</button>
+        <p v-bind:style="{ color: activeC }">빨강과 파랑을 섞으면 보라색이 됩니다</p>
+      </div>
+      `
+      ,
+      data: function() {
+        return {
+          activeC: 'red',
+        }
+      },
+      methods: {
+        changeCol: function() {
+          if (this.activeC === 'red'){
+            this.activeC='blue'
+          } else{
+            this.activeC='red'
+          }
+        }
+      }
+    })
+  </script>
+  <script>
+    const app = new Vue({
+      el: '#app',
+    })
+  </script>
+</body>
+</html>

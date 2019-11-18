@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<style>
+.completed {
+  text-decoration: line-through;
+  opacity: 0.5;
+}
+</style>
+<body>
+  <div id="app">
+    <button @click="clearCompleted">완료목록 전체 삭제</button>
+    <h1>Veu Todo</h1>
+    <!-- v-bind: 의 약어로 : 를 사용한다. -->
+    <img :src="imgSrc">
+    <br>
+    <input type="text" v-model="newTodo" v-on:keyup.enter="addTodo">
+    <button @click="addTodo">+</button>
+    
+    <select v-model="status">
+      <option value="all" selected>전체보기</option>
+      <option value="active">진행중</option>
+      <option value="completed">완료</option>
+    </select>
+
+    <ul>
+    <!-- v-on:[행동]="function" -->
+    <!--  v-if="!todo.completed"  -->
+      <li v-for="todo in todoByStatus()" v-on:click="checkTodo(todo)":class="{completed: todo.completed}" :key="todo.id">
+        <input type="checkbox" v-model="todo.completed">
+        {{ todo.content }}
+      </li>
+    </ul>
+    
+    <!-- <div :class="{completed: toggleClass}":style="{ color: activeColor, fontSize: fontSize + 'px'}">
+      html 스타일링 테스트
+    </div> -->
+    <p>{{ reversedNewTodo }}</p>
+  </div>  
+
+
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script>
+    // Chrome localStorage
+    const STORAGE_KEY = 'vue-todos'
+    // todoStorage.save() >> 저장
+    // todoStorage.fetch() >> 외부의 데이터 가져오기
+    const todoStorage = {
+      save(todos) {
+        // localStorage에 데이터를 저장 stringfy
+        return localStorage.setItem(STORAGE_KEY, JSON.stringify(todos))
+      },
+      fetch() {
+        // localStorage의 데이터를 가져와서 parse
+        return JSON.parse(localStorage.getItem(STORAGE_KEY))
+      }
+
+    }
+
+    const app = new Vue({
+      el: '#app',
+      data: {
+        todos: [
+          { id: 1, content: '꽃 사서 배달시키기', completed: false},
+          { id: 2, content: 'IR 자료 만들기', completed: false}, 
+          { id: 3, content: '과목평가 문제 검토하기', completed: false},
+          { id: 4, content: '프로젝트 명세 검토하기', completed: false},
+        ],
+        imgSrc: 'https://joshua1988.github.io/images/posts/web/vuejs/logo.png',
+        newTodo: '',
+        status: 'all',
+      },
+      methods: {
+        // checkTodo: function() {
+        checkTodo(todo) {
+          todo.completed = !todo.completed
+        },
+
+        addTodo() {
+          if (this.newTodo.length != 0) {
+            this.todos.push({
+              id: Date.now(),
+              content: this.newTodo,
+              completed: false,
+            })
+            this.newTodo = ''
+          }
+        },
+
+        clearCompleted() {
+          const notCompleted = this.todos.filter(function(todo){
+            return !todo.completed
+          })
+          this.todos = notCompleted
+        },
+      },
+
+      computed: {
+        reversedNewTodo() {
+          return this.split('').reverse().join('')
+        },
+        todoByStatus() {
+          // 진행 중인 일(active)
+          if (this.status === 'active') {
+            return this.todos.filter(function(todo) {
+              return !todo.completed
+            })
+          }
+          // 완료된 일(completed)
+          if (this.status === 'completed') {
+            return this.todos.filter(function(todo) {
+              return todo.completed
+            })
+          }
+          return this.todos
+        },
+
+      },
+
+      watch: {
+        todos: {
+          // 첫번째 인자로 todos를 받는다.
+          handler(todos) {
+            // todos가 변경될때마다 localStorage에 저장 >> save()
+            todoStorage.save(todos)
+          },
+          deep: true,
+        }
+      },
+
+    })
+  </script>
+</body>
+</html>
